@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-loadbalancer
+  namespace: demo
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 52.32.45.78 # One can specifiy a public IP, if not specified the cloud controllers will create a public IP
+  selector:
+    tier: frontend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 32000 # optional field

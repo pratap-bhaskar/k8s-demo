@@ -1,0 +1,54 @@
+# Configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-configmap
+  namespace: demo
+data:
+  # Property like keys
+  application_version: "1.2"
+  demo_presenter_name: "Pratap Bhaskar"
+  # Add a file-like keys
+  app.properties: |
+    app.version=1.2
+    demo.audience=commercial-routing,backend-cop
+
+---
+# Create a pod loading the files as environment variable
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-load
+  namespace: demo
+spec:
+  containers:
+  - name: demo
+    image: alpine
+    command: ["sleep", "3600"]
+    resources:
+      limits:
+        cpu: 100m
+        memory: 100Mi
+    env:
+    - name: APPLICATION_VERSION
+      valueFrom:
+        configMapKeyRef:
+          name: demo-configmap
+          key: application_version
+    - name: DEMO_PRESENTER_NAME
+      valueFrom:
+        configMapKeyRef:
+          name: demo-configmap
+          key: demo_presenter_name
+    volumeMounts:
+    - name: config
+      mountPath: "/config"
+      readOnly: true
+  volumes:
+  - name: config
+    configMap:
+      name: demo-configmap
+      #array of keys from the configmap to create files
+      items:
+      - key: app.properties
+        path: app.properties

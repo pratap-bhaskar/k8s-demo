@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pi
+  namespace: demo
+spec:
+  schedule: "* * * * *" #At every minute
+  jobTemplate: 
+    spec: 
+      activeDeadlineSeconds: 100
+      ttlSecondsAfterFinished: 10
+      parallelism: 5
+      completions: 3
+      template:
+        spec:
+          containers:
+          - name: pi
+            image: perl
+            command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+          restartPolicy: Never
+      backoffLimit: 4

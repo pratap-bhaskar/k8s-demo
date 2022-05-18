@@ -1,3 +1,5 @@
+# An Ingress object to expose two services service1 and service2 to external users as 
+# foo.bar.com/foo and foo.bar.com/bar respectively
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

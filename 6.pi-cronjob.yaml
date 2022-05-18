@@ -1,21 +1,23 @@
+# Recurring job execution
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: pi
   namespace: demo
 spec:
-  schedule: "* * * * *" #At every minute
-  jobTemplate: 
+  schedule: "* * * * *" #Cronjob template
+  jobTemplate: # A job spec as mentioned in .\5.pi-job.yaml
     spec: 
       activeDeadlineSeconds: 100
       ttlSecondsAfterFinished: 10
-      parallelism: 5
+      parallelism: 2
       completions: 3
       template:
         spec:
           containers:
           - name: pi
             image: perl
+            imagePullPolicy: IfNotPresent
             command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
           restartPolicy: Never
       backoffLimit: 4

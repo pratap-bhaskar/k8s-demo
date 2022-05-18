@@ -29,12 +29,12 @@ spec:
       limits:
         cpu: 100m
         memory: 100Mi
-    env:
+    env: # Load values from ConfigMap directly as environment variable
     - name: APPLICATION_VERSION
       valueFrom:
         configMapKeyRef:
-          name: demo-configmap
-          key: application_version
+          name: demo-configmap # Name of the configmap in the same namespace
+          key: application_version # Key for which value will be loaded
     - name: DEMO_PRESENTER_NAME
       valueFrom:
         configMapKeyRef:
@@ -44,11 +44,11 @@ spec:
     - name: config
       mountPath: "/config"
       readOnly: true
-  volumes:
+  volumes: # Create configmaps as files 
   - name: config
     configMap:
       name: demo-configmap
       #array of keys from the configmap to create files
       items:
-      - key: app.properties
-        path: app.properties
+      - key: app.properties # Key of the value to be loaded as a file
+        path: app.properties # relative path of the file 

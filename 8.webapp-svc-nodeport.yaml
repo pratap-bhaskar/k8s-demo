@@ -1,3 +1,4 @@
+# Nodeport service to expose 3.webapp-deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,7 +10,7 @@ spec:
     tier: frontend
   ports:
     - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 8080
-      nodePort: 32000 # optional field
+      protocol: TCP 
+      port: 80 # exposed port for the cluster-ip service
+      targetPort: 8080 # Container port of target pods
+      nodePort: 32000 # optional field, if not provided k8s finds one within range of 30000-32767

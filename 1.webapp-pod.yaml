@@ -1,60 +1,66 @@
+# Create a simple web application pod hosted on port 8080
+# Along with an additional container called sidecar to access resources directly from other container
+# It also creates an init container which to demonstrate a initialization process before the container can get started
 apiVersion: v1
 kind: Pod
 metadata:
   name: webapp
   namespace: demo
 spec:
-  containers:
-    - name: webapp
-      image: pratapgowda/demo-webapp:1.0
-      imagePullPolicy: IfNotPresent
-      ports:
-        - containerPort: 8080
-      volumeMounts:
-        - name: workdir
-          mountPath: /usr/share/webapp/html
-      resources:
-        limits:
-          cpu: "500m"
-          memory: 1G
-        requests:
-          cpu: "250m"
-          memory: 100Mi
-      livenessProbe:
-        httpGet:
-          path: /health
-          port: 8080
-        initialDelaySeconds: 3
-        periodSeconds: 3
-      readinessProbe:
-        httpGet:
-          path: /health
-          port: 8080
-        initialDelaySeconds: 3
-        periodSeconds: 3
-    - name: busybox
-      image: busybox
-      resources:
-        limits:
-          cpu: "500m"
-          memory: 1G
-        requests:
-          cpu: "250m"
-          memory: 100Mi
-      command: 
-        - sleep
-        - "6000"
   # These containers are run during pod initialization
   initContainers:
-    - name: install
+    - name: initializer
       image: pratapgowda/demo-initializer
-      env:
+      imagePullPolicy: IfNotPresent # Pull images only if missing in the node, Defaulted to Always
+      env: # Inject an environment variable directly through configuration
         - name: WAIT_IN_SECS
           value: "5"
-      volumeMounts:
+      volumeMounts: # Mount a file system for temporary processing at given path
         - name: workdir
           mountPath: "/work-dir"
-  dnsPolicy: Default
-  volumes:
+  containers:
+    # A .Net blazor application hosted on port 8080
+    - name: webapp
+      image: pratapgowda/demo-webapp:1.0
+      imagePullPolicy: IfNotPresent # Pull images only if missing in the node
+      ports:
+        - containerPort: 8080 # exposed ports
+      volumeMounts: # Mount a file system for temporary processing at given path
+        - name: workdir
+          mountPath: /usr/share/webapp/html
+      resources: 
+        limits: # Maximum limits for the resource utilization
+          cpu: "500m" # When container reaches the limit, k8s throttles the CPU slice
+          memory: 1G  # When container consumes more than the limit memory, its premptively removed as OOMKilled status 
+        requests: # If node doesnt have the below requirements, pod would be in pending state till available.
+          cpu: "250m" # Minimum allocation of the CPU, k8s guarantees this amount from the node.
+          memory: 100Mi # Minimum allocation of the memory, k8s guarantees this amount from the node.
+      livenessProbe: # A Health probe from the container, could be an HTTP/TCP/gRPC(beta) endpoint or even a command
+        httpGet:  # If the probe fails to be successful, the container would be deemed unhealthy and the pod would be restarted.
+          path: /health
+          port: 8080
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      readinessProbe: # A Probe to allow traffic to the container, if the probe fails traffic will not be routed through a service to this pod 
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 3
+        periodSeconds: 3
+    # A Simple container running parellely within the same pod to show case how then can talk to each other
+    - name: sidecar
+      image: busybox # by default dockerhub and latest tags are considered
+      imagePullPolicy: IfNotPresent # Pull images only if missing in the node
+      resources:
+        limits:
+          cpu: "500m"
+          memory: 1G
+        requests:
+          cpu: "250m"
+          memory: 100Mi
+      command: # Execute a command once the container is loaded
+        - sleep
+        - "6000"
+  volumes: # An empty ephemral directory definition to be mounted into the containers
     - name: workdir
       emptyDir: {}

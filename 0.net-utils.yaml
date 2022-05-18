@@ -7,6 +7,7 @@ spec:
   containers:
     - name: network-utils
       image: amouat/network-utils
+      imagePullPolicy: IfNotPresent
       resources:
         limits:
           cpu: "200m"

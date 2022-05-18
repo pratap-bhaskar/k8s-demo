@@ -1,3 +1,5 @@
+# Loadbalancer service to expose 3.webapp-deployment.yaml
+# Can be applied only on the Cloud provided kubernetes service
 apiVersion: v1
 kind: Service
 metadata:

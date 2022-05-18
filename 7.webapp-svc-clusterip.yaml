@@ -1,13 +1,15 @@
+# ClusterIP service to expose 3.webapp-pod.yaml within k8s cluster
 apiVersion: v1
 kind: Service
 metadata:
   name: webapp
   namespace: demo
 spec:
-  selector:
+  type: ClusterIP # Type of service
+  selector: # Labels to match the pods within the namespace to route the traffic to.
     tier: frontend
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 8080
+  ports: 
+    - name: http # user-defined name for the port
+      protocol: TCP # Protocol TCP, UDP and SCTP
+      port: 80 # Port that will be exposed to external users
+      targetPort: 8080 # Container ports of the targetted pods

@@ -1,3 +1,5 @@
+# Replicaset definition for the webapp deployed in 1.webapp-pod.yaml
+# Replicasets ensure the number of pods are always alive
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -7,15 +9,15 @@ metadata:
     app: demo
     tier: frontend
 spec:
-  replicas: 3
-  selector:
+  replicas: 3 # Number of replicas we would need to be always available.
+  selector: # Below configuration identifies and controls the pods to be created
     matchLabels:
       tier: frontend
-  template:
-    metadata:
+  template: # Pod definition template
+    metadata: # The labels for the pods to be created, this should contain all the "selector.matchLabels" labels and can have more
       labels:
         tier: frontend
-    spec:
+    spec: # Same definition as 1.webapp-pod.yaml
       containers:
         - name: webapp
           image: pratapgowda/demo-webapp:1.0
@@ -44,8 +46,9 @@ spec:
               port: 8080
             initialDelaySeconds: 3
             periodSeconds: 3
-        - name: busybox
+        - name: sidecar
           image: busybox
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: "500m"
@@ -58,8 +61,9 @@ spec:
             - "6000"
       # These containers are run during pod initialization
       initContainers:
-        - name: install
+        - name: initializer
           image: pratapgowda/demo-initializer
+          imagePullPolicy: IfNotPresent
           env:
             - name: WAIT_IN_SECS
               value: "1"

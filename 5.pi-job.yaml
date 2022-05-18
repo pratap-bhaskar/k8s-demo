@@ -1,18 +1,20 @@
+# Single time execution of a container
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: pi
   namespace: demo
 spec:
-  activeDeadlineSeconds: 100
-  ttlSecondsAfterFinished: 10
-  parallelism: 5
-  completions: 3
-  template:
+  activeDeadlineSeconds: 100 # Maximum time for execution of the job, if container exceeds the time from start it will be terminated.
+  ttlSecondsAfterFinished: 10 # Time after completion for the pod to be removed, if not specified the pods are not cleanedup
+  parallelism: 2 # maximum number of pods the job should run at any given time, typically it will be always less than actual number
+  completions: 3 # Desierd number of successful jobs to be completed
+  template: # Pod specification
     spec:
       containers:
       - name: pi
         image: perl
+        imagePullPolicy: IfNotPresent
         command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
       restartPolicy: Never
   backoffLimit: 4

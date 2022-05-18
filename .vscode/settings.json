@@ -1,0 +1,6 @@
+{
+    "yaml.schemas": {
+        "file:///Users/p0b035e/.vscode/extensions/atlassian.atlascode-2.9.1/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+        "kubernetes://schema/v1%40pod": "file:///c%3A/workspaces/playground/k8s-learning/13.secrets.yaml"
+    }
+}

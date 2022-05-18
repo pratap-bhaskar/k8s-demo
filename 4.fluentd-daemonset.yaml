@@ -1,3 +1,4 @@
+# Special kind of deployment that adds a pod in every node.
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -17,6 +18,7 @@ spec:
       containers:
       - name: fluentd
         image: fluent/fluentd:v0.14.10
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             memory: 200Mi

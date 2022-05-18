@@ -1,3 +1,4 @@
+# Deployment to control creation of pods and update the containers
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,12 +8,14 @@ metadata:
     app: demo
     tier: frontend
 spec:
-  revisionHistoryLimit: 3
-  replicas: 3
-  strategy:
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge : 1
+  revisionHistoryLimit: 3 # Limit of history maintained by deployment, useful for rollback
+  replicas: 3 # Minimum number of replicase gauranteed
+  strategy: # Upgrade strategy 
+    type: RollingUpdate # Can be either a "RollingUpdate" Or "Recreate"
+    rollingUpdate: 
+      maxUnavailable: 1 # Maximum number of old pods that are unavailable during upgrade, can be a percent too
+      maxSurge : 1 # The maximum number of pods that can be scheduled above the desired number of pods
+  # Below definition is simliar to a replicaset deployed in 2.webapp-replicaset.yaml
   selector:
     matchLabels:
       tier: frontend
@@ -49,8 +52,9 @@ spec:
               port: 8080
             initialDelaySeconds: 3
             periodSeconds: 3
-        - name: busybox
+        - name: sidecar
           image: busybox
+          imagePullPolicy: IfNotPresent
           resources:
             limits:
               cpu: "500m"
@@ -63,8 +67,9 @@ spec:
             - "6000"
       # These containers are run during pod initialization
       initContainers:
-        - name: install
+        - name: initializer
           image: pratapgowda/demo-initializer
+          imagePullPolicy: IfNotPresent
           env:
             - name: WAIT_IN_SECS
               value: "1"

@@ -1,0 +1,66 @@
+# Role defining a read-only permissions on Pods
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: demo
+rules:
+  - verbs:
+      - get
+      - watch
+      - list
+    apiGroups:
+      - "" #core group 
+    resources:
+      - pods
+
+---
+# Cluster Role definition for reading nodes information
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  names: nodes-reader
+rules:
+  - apiGroups:
+      - ""
+    verbs:
+      - get
+      - list
+    resources:
+      - nodes
+
+---
+# Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader
+  namespace: demo
+subjects:
+- kind: User 
+  name: Pratap
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: pod-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "dave" to read secrets in the "demo" namespace.
+# You need to already have a ClusterRole named "nodes-reader".
+kind: RoleBinding
+metadata:
+  name: nodes-reader
+  #
+  # The namespace of the RoleBinding determines where the permissions are granted.
+  # This only grants permissions within the "development" namespace.
+  namespace: demo
+subjects:
+- kind: User 
+  name: dave # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: nodes-reader
+  apiGroup: rbac.authorization.k8s.io

@@ -1,3 +1,4 @@
+# External Name service to access wikipedia as "external-service.demo.svc.cluster.local"
 apiVersion: v1
 kind: Service
 metadata:
